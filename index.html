@@ -16,40 +16,38 @@
             --danger: #dc2626;
         }
         
-        /* Dynamic Centering Logic */
         body { 
             font-family: 'Inter', -apple-system, sans-serif; 
             background: var(--bg); 
             color: var(--text-main); 
             margin: 0; padding: 0;
             display: flex; 
-            flex-direction: column;
             align-items: center; 
             justify-content: center;
-            min-height: 100dvh; /* Dynamic height for mobile browsers */
-            box-sizing: border-box;
+            min-height: 100dvh; 
         }
 
+        /* Container with fixed padding and width constraints */
         .container { 
-            width: 90%; 
-            max-width: 400px; 
+            width: calc(100% - 40px); /* Provides 20px padding on each side */
+            max-width: 380px; 
             background: var(--container-bg); 
-            padding: 2.5rem 1.5rem; 
+            padding: 2rem 1.5rem; 
             border-radius: 2rem; 
             text-align: center; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             display: flex; 
             flex-direction: column; 
             align-items: center;
-            margin: 20px 0; /* Ensures space on small screens */
+            box-sizing: border-box;
         }
 
-        h2 { margin-top: 0; margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 700; }
+        h2 { margin-top: 0; margin-bottom: 1.5rem; font-size: 1.4rem; font-weight: 700; }
 
-        /* Card UI System */
+        /* Card UI */
         .credit-card { 
             width: 100%; aspect-ratio: 1.58 / 1; border-radius: 1.25rem; 
-            padding: 1.5rem; margin: 1.2rem 0; position: relative;
+            padding: 1.2rem; margin: 1rem 0; position: relative;
             background: #111827; color: white; overflow: hidden;
             display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box; box-shadow: 0 8px 20px rgba(0,0,0,0.2);
@@ -61,29 +59,29 @@
         .card-gold { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
 
         .card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .card-chip { width: 45px; height: 32px; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 6px; }
-        .card-type-tag { font-weight: bold; font-style: italic; font-size: 0.8rem; text-align: right; }
-        .card-number { font-family: 'monospace'; font-size: 1.3rem; letter-spacing: 2px; text-align: center; white-space: nowrap; cursor: pointer; margin: auto 0; }
+        .card-chip { width: 40px; height: 28px; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 4px; }
+        .card-type-tag { font-weight: bold; font-style: italic; font-size: 0.75rem; }
+        .card-number { font-family: 'monospace'; font-size: 1.2rem; letter-spacing: 2px; text-align: center; white-space: nowrap; cursor: pointer; margin: auto 0; }
 
         .card-footer { display: grid; grid-template-columns: 2fr 1fr 0.8fr; gap: 5px; text-align: left; align-items: flex-end; width: 100%; }
-        .label { font-size: 0.55rem; text-transform: uppercase; opacity: 0.7; display: block; margin-bottom: 2px; }
-        .val { font-family: 'monospace'; font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .label { font-size: 0.5rem; text-transform: uppercase; opacity: 0.7; display: block; }
+        .val { font-family: 'monospace'; font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Form Elements */
+        /* Inputs and Selects */
         input, select { 
-            width: 100%; padding: 0.85rem; border-radius: 0.75rem; margin: 0.4rem 0; 
-            text-align: left; background: #fff; color: var(--text-main); border: 1px solid var(--input-border); 
+            width: 100%; padding: 0.8rem; border-radius: 0.7rem; margin: 0.4rem 0; 
+            background: #fff; color: var(--text-main); border: 1px solid var(--input-border); 
             box-sizing: border-box; font-size: 1rem;
         }
 
-        .btn { width: 100%; padding: 0.85rem; border-radius: 0.75rem; font-weight: 600; cursor: pointer; border: none; margin-top: 0.5rem; transition: 0.2s; }
+        .btn { width: 100%; padding: 0.8rem; border-radius: 0.7rem; font-weight: 600; cursor: pointer; border: none; margin-top: 0.5rem; }
         .btn-blue { background: var(--primary); color: white; }
-        .btn-light-blue { background: #eff6ff; color: var(--primary); }
+        .btn-light { background: #eff6ff; color: var(--primary); }
         .btn-ghost { background: var(--btn-ghost); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .hidden { display: none; }
 
-        #toast { position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 0.8rem 1.5rem; border-radius: 2rem; opacity: 0; transition: 0.3s; z-index: 100; pointer-events: none; }
+        #toast { position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 0.7rem 1.2rem; border-radius: 2rem; opacity: 0; transition: 0.3s; z-index: 100; pointer-events: none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -93,7 +91,7 @@
 <div class="container">
     <h2>🔐 Secure Vault</h2>
     
-    <div id="unlockSection">
+    <div id="unlockSection" style="width: 100%;">
         <input type="password" id="masterPass" placeholder="Master Password">
         <button class="btn btn-blue" onclick="unlockVault()">Unlock Vault</button>
         <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">📂 Import Backup</button>
@@ -103,23 +101,28 @@
     <div id="mainContent" class="hidden" style="width: 100%;">
         <select id="cardSelector" onchange="handleSelection()"></select>
         <div id="cardDisplay" style="width: 100%;"></div>
-        <button class="btn btn-light-blue" id="actionBtn" onclick="toggleAddForm()">+ Add New Card</button>
+        <button class="btn btn-light" id="actionBtn" onclick="toggleAddForm()">+ Add New Card</button>
 
         <div id="addForm" class="hidden">
             <input type="hidden" id="editId">
             <input type="text" id="nick" placeholder="Nickname">
             <select id="type">
-                <optgroup label="RuPay (India)">
+                <optgroup label="RuPay">
                     <option value="RuPay Classic">RuPay Classic</option>
                     <option value="RuPay Platinum">RuPay Platinum</option>
                     <option value="RuPay Select">RuPay Select</option>
                 </optgroup>
                 <optgroup label="Visa">
+                    <option value="Visa Classic">Visa Classic</option>
+                    <option value="Visa Gold">Visa Gold</option>
                     <option value="Visa Platinum">Visa Platinum</option>
                     <option value="Visa Signature">Visa Signature</option>
                     <option value="Visa Infinite">Visa Infinite</option>
                 </optgroup>
                 <optgroup label="Mastercard">
+                    <option value="Mastercard Standard">Mastercard Standard</option>
+                    <option value="Mastercard Platinum">Mastercard Platinum</option>
+                    <option value="Mastercard World">Mastercard World</option>
                     <option value="Mastercard World Elite">Mastercard World Elite</option>
                 </optgroup>
             </select>
@@ -133,9 +136,9 @@
             <button class="btn btn-ghost" onclick="toggleAddForm()" style="background:#94a3b8;">Cancel</button>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top: 1.5rem;">
-            <button class="btn btn-ghost" onclick="exportData()">📦 Backup</button>
-            <button class="btn btn-danger" onclick="location.reload()">🔒 Lock</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top: 1.2rem;">
+            <button class="btn btn-ghost" onclick="exportData()" style="font-size:0.75rem;">📦 Backup</button>
+            <button class="btn btn-danger" onclick="location.reload()" style="font-size:0.75rem;">🔒 Lock</button>
         </div>
     </div>
 </div>
@@ -171,7 +174,10 @@
         if (!id) { display.innerHTML = ""; btn.innerText = "+ Add New Card"; return; }
         const card = getCards().find(c => c.id == id);
         btn.innerText = "Edit " + card.nick;
-        let theme = card.type.includes("RuPay") ? "card-rupay" : card.type.includes("Infinite") ? "card-infinite" : card.type.includes("Platinum") ? "card-platinum" : card.type.includes("Gold") ? "card-gold" : "";
+        let theme = card.type.includes("RuPay") ? "card-rupay" : 
+                    card.type.includes("Infinite") ? "card-infinite" : 
+                    card.type.includes("Platinum") ? "card-platinum" : 
+                    card.type.includes("Gold") ? "card-gold" : "";
         display.innerHTML = `
             <div class="credit-card ${theme}">
                 <div class="card-header"><div class="card-chip"></div><div class="card-type-tag">${card.type}</div></div>
@@ -183,8 +189,8 @@
                 </div>
             </div>
             <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px; margin-top:5px;">
-                <button class="btn btn-ghost" onclick="copy('Num: ${card.num}\\nExp: ${card.exp}\\nCVV: ${card.cvv}\\nName: ${card.name}')" style="font-size:0.75rem;">📋 Copy Details</button>
-                <button class="btn btn-danger" onclick="deleteCard(${card.id})" style="font-size:0.75rem;">Del</button>
+                <button class="btn btn-ghost" onclick="copy('Num: ${card.num}\\nExp: ${card.exp}\\nCVV: ${card.cvv}\\nName: ${card.name}')" style="font-size:0.7rem;">📋 Copy Details</button>
+                <button class="btn btn-danger" onclick="deleteCard(${card.id})" style="font-size:0.7rem;">Del</button>
             </div>
         `;
     }
@@ -192,6 +198,7 @@
     function saveCard() {
         const editId = document.getElementById('editId').value;
         const card = { id: editId ? parseInt(editId) : Date.now(), nick: document.getElementById('nick').value, type: document.getElementById('type').value, num: document.getElementById('num').value, name: document.getElementById('name').value, exp: document.getElementById('exp').value, cvv: document.getElementById('cvv').value };
+        if(!card.nick || !card.num) return alert("Fill required fields");
         let cards = getCards();
         if (editId) cards[cards.findIndex(c => c.id == editId)] = card; else cards.push(card);
         localStorage.setItem('vault_data', CryptoJS.AES.encrypt(JSON.stringify(cards), MASTER_KEY).toString());
@@ -212,7 +219,7 @@
         }
     }
 
-    function deleteCard(id) { if(confirm("Delete this card?")) { let c = getCards().filter(x => x.id != id); localStorage.setItem('vault_data', CryptoJS.AES.encrypt(JSON.stringify(c), MASTER_KEY).toString()); updateDropdown(); handleSelection(); } }
+    function deleteCard(id) { if(confirm("Delete card?")) { let c = getCards().filter(x => x.id != id); localStorage.setItem('vault_data', CryptoJS.AES.encrypt(JSON.stringify(c), MASTER_KEY).toString()); updateDropdown(); handleSelection(); } }
     function getCards() { const d = localStorage.getItem('vault_data'); try { return d ? JSON.parse(CryptoJS.AES.decrypt(d, MASTER_KEY).toString(CryptoJS.enc.Utf8)) : []; } catch(e) { return []; } }
     function updateDropdown() { const s = document.getElementById('cardSelector'); s.innerHTML = '<option value="">-- Choose Card --</option>' + getCards().map(c => `<option value="${c.id}">${c.nick}</option>`).join(''); }
     function copy(t) { navigator.clipboard.writeText(t); const toast = document.getElementById('toast'); toast.style.opacity = '1'; setTimeout(() => toast.style.opacity = '0', 1200); }
