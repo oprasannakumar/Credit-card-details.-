@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Card Vault</title>
+    <title>Secure Card Vault</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --success: #16a34a; --danger: #dc2626; }
@@ -11,7 +11,7 @@
         .container { max-width: 440px; margin: auto; background: white; padding: 2rem; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         
         /* Realistic Card Themes */
-        .credit-card { width: 100%; height: 210px; border-radius: 15px; padding: 25px; box-sizing: border-box; color: white; position: relative; box-shadow: 0 12px 24px rgba(0,0,0,0.2); margin-top: 15px; transition: 0.3s; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
+        .credit-card { width: 100%; height: 210px; border-radius: 15px; padding: 25px; box-sizing: border-box; color: white; position: relative; box-shadow: 0 12px 24px rgba(0,0,0,0.2); margin-top: 15px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
         .card-gold { background: linear-gradient(135deg, #b8860b, #ffd700); color: #1e293b !important; }
         .card-platinum { background: linear-gradient(135deg, #94a3b8, #e2e8f0); color: #1e293b !important; }
         .card-infinite { background: linear-gradient(135deg, #000000, #434343); border: 1px solid #ffd700; }
@@ -31,25 +31,22 @@
 <div id="toast">Copied!</div>
 
 <div class="container">
-    <h2 style="text-align:center; margin-top:0;">🔒 Card Vault</h2>
+    <h2 style="text-align:center; margin-top:0;">🔒 Vault</h2>
     
     <div id="unlockSection">
         <input type="password" id="masterPass" placeholder="Master Password">
         <button onclick="unlockVault()">Unlock with Password</button>
         <button id="bioBtn" class="biometric-btn hidden" onclick="biometricUnlock()">☝️ Use Biometrics</button>
-        
         <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-            <p style="font-size: 0.75rem; text-align:center; color: #64748b;">New browser? Import your backup first.</p>
             <input type="file" id="importFile" class="hidden" onchange="importData(this)">
-            <button onclick="document.getElementById('importFile').click()" style="background:#64748b; font-size: 0.8rem;">📥 Import Backup File</button>
+            <button onclick="document.getElementById('importFile').click()" style="background:#64748b; font-size: 0.8rem;">📥 Import Backup</button>
         </div>
     </div>
 
     <div id="mainContent" class="hidden">
         <select id="cardSelector" onchange="renderSelectedCard()"></select>
         <div id="selectedCardDisplay"></div>
-
-        <button onclick="toggleAddForm()" style="background:#f1f5f9; color:var(--primary); margin-top:15px;">+ Add / Edit Card Details</button>
+        <button onclick="toggleAddForm()" style="background:#f1f5f9; color:var(--primary); margin-top:15px;">+ Add / Edit Card</button>
 
         <div id="addForm" class="hidden">
             <input type="hidden" id="editId">
@@ -60,10 +57,8 @@
                     <option value="Visa Signature">Visa Signature</option>
                     <option value="Visa Infinite">Visa Infinite</option>
                 </optgroup>
-                <optgroup label="Mastercard">
-                    <option value="Mastercard Standard">Mastercard Standard</option>
-                    <option value="Mastercard World">Mastercard World</option>
-                </optgroup>
+                <optgroup label="Mastercard"><option value="Mastercard World">Mastercard World</option></optgroup>
+                <optgroup label="Rupay"><option value="Rupay Select">Rupay Select</option></optgroup>
             </select>
             <input type="text" id="num" placeholder="Card Number" maxlength="19">
             <input type="text" id="name" placeholder="Cardholder Name">
@@ -75,10 +70,10 @@
         </div>
 
         <div style="margin-top:20px; border-top: 1px solid #eee; padding-top: 15px;">
-            <button id="setupBioBtn" class="biometric-btn" onclick="setupBiometrics()">☝️ Link Fingerprint to this Browser</button>
+            <button id="setupBioBtn" class="biometric-btn" onclick="setupBiometrics()">☝️ Link Biometrics to GitHub</button>
             <div class="grid" style="margin-top:10px;">
-                <button onclick="exportData()" style="background:#334155; font-size:0.8rem;">📦 Export Data</button>
-                <button onclick="location.reload()" style="background:var(--danger); font-size:0.8rem;">🔒 Lock Vault</button>
+                <button onclick="exportData()" style="background:#334155; font-size:0.8rem;">📦 Export</button>
+                <button onclick="location.reload()" style="background:var(--danger); font-size:0.8rem;">🔒 Lock</button>
             </div>
         </div>
     </div>
@@ -86,59 +81,55 @@
 
 <script>
     let MASTER_KEY = "";
+    const RP_ID = window.location.hostname; // Crucial for GitHub Pages
 
     window.onload = () => {
         if (localStorage.getItem('vault_bio_enabled')) document.getElementById('bioBtn').classList.remove('hidden');
     };
 
-    // --- BIOMETRIC SECURITY ---
     async function setupBiometrics() {
         if (!window.PublicKeyCredential) return alert("Biometrics not supported.");
-        const randomId = window.crypto.getRandomValues(new Uint8Array(16));
+        const userId = Uint8Array.from("VAULT_USER", c => c.charCodeAt(0));
+        const challenge = window.crypto.getRandomValues(new Uint8Array(32));
         try {
-            const challenge = window.crypto.getRandomValues(new Uint8Array(32));
             const credential = await navigator.credentials.create({
-                publicKey: { 
-                    challenge, 
-                    rp: { name: "Secure Vault" }, 
-                    user: { id: randomId, name: "User-"+Date.now(), displayName: "User" },
-                    pubKeyCredParams: [{ type: "public-key", alg: -7 }], 
-                    authenticatorSelection: { authenticatorAttachment: "platform" }
+                publicKey: {
+                    challenge,
+                    rp: { name: "Secure Vault", id: RP_ID },
+                    user: { id: userId, name: "vault-user", displayName: "Vault User" },
+                    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                    authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }
                 }
             });
             if (credential) {
                 localStorage.setItem('vault_bio_enabled', 'true');
                 localStorage.setItem('vault_bio_key', CryptoJS.AES.encrypt(MASTER_KEY, "internal-salt").toString());
-                alert("Fingerprint linked successfully!");
-                document.getElementById('bioBtn').classList.remove('hidden');
+                alert("Biometrics linked! Refresh the page to test.");
+                location.reload();
             }
-        } catch (e) { alert("Setup failed. Ensure you are on HTTPS or Localhost."); }
+        } catch (e) { alert("Setup failed: " + e.message); }
     }
 
     async function biometricUnlock() {
+        const challenge = window.crypto.getRandomValues(new Uint8Array(32));
         try {
-            const challenge = window.crypto.getRandomValues(new Uint8Array(32));
-            const assertion = await navigator.credentials.get({ publicKey: { challenge, timeout: 60000 } });
+            const assertion = await navigator.credentials.get({
+                publicKey: { challenge, rpId: RP_ID, userVerification: "required" }
+            });
             if (assertion) {
                 const encrypted = localStorage.getItem('vault_bio_key');
                 MASTER_KEY = CryptoJS.AES.decrypt(encrypted, "internal-salt").toString(CryptoJS.enc.Utf8);
                 showVault();
             }
-        } catch (e) { alert("Biometric verification failed."); }
+        } catch (e) { alert("Biometric login failed. Use password."); }
     }
 
-    // --- CORE LOGIC ---
     function unlockVault() {
         const pass = document.getElementById('masterPass').value;
         const storedHash = localStorage.getItem('vault_hash');
         const currentHash = CryptoJS.SHA256(pass).toString();
-
-        if (storedHash && storedHash !== currentHash) return alert("Incorrect password!");
-        if (!storedHash && pass) {
-            if(confirm("Set this as your permanent Master Password?")) localStorage.setItem('vault_hash', currentHash);
-            else return;
-        }
-
+        if (storedHash && storedHash !== currentHash) return alert("Wrong password!");
+        if (!storedHash && pass) localStorage.setItem('vault_hash', currentHash);
         MASTER_KEY = pass;
         showVault();
     }
@@ -149,7 +140,6 @@
         updateDropdown();
     }
 
-    // --- DATA HANDLING ---
     function exportData() {
         const payload = JSON.stringify({ data: localStorage.getItem('vault_data'), hash: localStorage.getItem('vault_hash') });
         const blob = new Blob([payload], {type: "text/plain"});
@@ -162,18 +152,15 @@
     function importData(input) {
         const reader = new FileReader();
         reader.onload = () => {
-            try {
-                const json = JSON.parse(reader.result);
-                localStorage.setItem('vault_data', json.data);
-                localStorage.setItem('vault_hash', json.hash);
-                alert("Backup Imported! Unlock using your original password.");
-                location.reload();
-            } catch(e) { alert("Invalid backup file."); }
+            const json = JSON.parse(reader.result);
+            localStorage.setItem('vault_data', json.data);
+            localStorage.setItem('vault_hash', json.hash);
+            alert("Imported! Use original password.");
+            location.reload();
         };
         reader.readAsText(input.files[0]);
     }
 
-    // --- FORMATTING ---
     document.getElementById('num').addEventListener('input', (e) => {
         let v = e.target.value.replace(/\s+/g, '').replace(/\D/g, '');
         let parts = v.match(/.{1,4}/g);
@@ -185,11 +172,9 @@
         e.target.value = v.length > 2 ? v.substring(0, 2) + '/' + v.substring(2, 4) : v;
     });
 
-    // --- CARD FUNCTIONS ---
     function saveCard() {
         const editId = document.getElementById('editId').value;
         const card = { id: editId ? parseInt(editId) : Date.now(), nick: document.getElementById('nick').value, type: document.getElementById('type').value, num: document.getElementById('num').value, exp: document.getElementById('exp').value, cvv: document.getElementById('cvv').value, name: document.getElementById('name').value };
-        if (!card.nick || !card.num) return alert("Fill all fields.");
         let cards = getDecryptedCards();
         if (editId) cards[cards.findIndex(c => c.id == editId)] = card;
         else cards.push(card);
@@ -209,21 +194,7 @@
         if (!id) { display.innerHTML = ""; return; }
         const card = getDecryptedCards().find(c => c.id == id);
         const theme = card.type.includes("Infinite") ? "card-infinite" : card.type.includes("Platinum") ? "card-platinum" : "credit-card";
-        display.innerHTML = `
-            <div class="credit-card ${theme}">
-                <div style="text-align:right; font-size:0.8rem;">${card.type}</div>
-                <div class="card-chip"></div>
-                <span class="card-number" onclick="copyValue('${card.num}')">${card.num}</span>
-                <div style="display:flex;justify-content:space-between;font-size:0.8rem;align-items:flex-end;">
-                    <div onclick="copyValue('${card.name}')">NAME: ${card.name}</div>
-                    <div onclick="copyValue('${card.exp}')">EXP: ${card.exp}</div>
-                    <div onclick="copyValue('${card.cvv}')">CVV: ***</div>
-                </div>
-            </div>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button onclick="copyValue('No: ${card.num}\\nExp: ${card.exp}\\nCVV: ${card.cvv}\\nName: ${card.name}')" style="background:#334155;">📋 Copy All</button>
-                <button onclick="editCard(${card.id})" style="background:#2563eb;">Edit</button>
-            </div>`;
+        display.innerHTML = `<div class="credit-card ${theme}"><div style="text-align:right; font-size:0.8rem;">${card.type}</div><div class="card-chip"></div><span class="card-number" onclick="copyValue('${card.num}')">${card.num}</span><div style="display:flex;justify-content:space-between;font-size:0.8rem;"><div>${card.name}</div><div>${card.exp}</div><div>***</div></div></div><button onclick="editCard(${card.id})" style="background:#2563eb;margin-top:10px;">Edit Card</button>`;
     }
 
     function copyValue(t) { navigator.clipboard.writeText(t); document.getElementById('toast').style.opacity = '1'; setTimeout(()=>document.getElementById('toast').style.opacity = '0', 1200); }
