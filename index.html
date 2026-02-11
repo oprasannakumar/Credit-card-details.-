@@ -66,7 +66,7 @@
         .val { font-family: 'monospace'; font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         input, select { 
-            width: 100%; padding: 0.8rem; border-radius: 0.7rem; margin: 0.4rem 0; 
+            width: 100%; padding: 0.8rem; border-radius: 0.75rem; margin: 0.4rem 0; 
             background: #fff; color: var(--text-main); border: 1px solid var(--input-border); 
             box-sizing: border-box; font-size: 1rem;
         }
@@ -143,7 +143,6 @@
 <script>
     let MASTER_KEY = "";
 
-    // Formatting listeners
     document.getElementById('num').addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '').match(/.{1,4}/g);
         e.target.value = v ? v.join(' ') : '';
@@ -152,7 +151,6 @@
         let v = e.target.value.replace(/\D/g, '');
         e.target.value = v.length > 2 ? v.substring(0, 2) + '/' + v.substring(2, 4) : v;
     });
-    // CVV specific numeric enforcement
     document.getElementById('cvv').addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
     });
@@ -223,7 +221,19 @@
 
     function deleteCard(id) { if(confirm("Delete card?")) { let c = getCards().filter(x => x.id != id); localStorage.setItem('vault_data', CryptoJS.AES.encrypt(JSON.stringify(c), MASTER_KEY).toString()); updateDropdown(); handleSelection(); } }
     function getCards() { const d = localStorage.getItem('vault_data'); try { return d ? JSON.parse(CryptoJS.AES.decrypt(d, MASTER_KEY).toString(CryptoJS.enc.Utf8)) : []; } catch(e) { return []; } }
-    function updateDropdown() { const s = document.getElementById('cardSelector'); s.innerHTML = '<option value="">-- Choose Card --</option>' + getCards().map(c => `<option value="${c.id}">${c.nick}</option>`).join(''); }
+    
+    // UPDATED: Sorted alphabetical dropdown
+    function updateDropdown() { 
+        const s = document.getElementById('cardSelector'); 
+        const c = getCards();
+        
+        // Sort cards by Nickname alphabetically
+        c.sort((a, b) => a.nick.localeCompare(b.nick));
+        
+        s.innerHTML = '<option value="">-- Choose Card --</option>' + 
+                      c.map(x => `<option value="${x.id}">${x.nick}</option>`).join(''); 
+    }
+
     function copy(t) { navigator.clipboard.writeText(t); const toast = document.getElementById('toast'); toast.style.opacity = '1'; setTimeout(() => toast.style.opacity = '0', 1200); }
     function exportData() { const blob = new Blob([JSON.stringify({data: localStorage.getItem('vault_data'), hash: localStorage.getItem('vault_hash')})], {type:"text/plain"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "vault_backup.txt"; a.click(); }
     function importData(i) { const r = new FileReader(); r.onload = (e) => { const j = JSON.parse(e.target.result); localStorage.setItem('vault_data', j.data); localStorage.setItem('vault_hash', j.hash); location.reload(); }; r.readAsText(i.files[0]); }
