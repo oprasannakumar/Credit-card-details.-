@@ -41,7 +41,7 @@
     
     <div id="unlockSection" style="width:100%">
         <input type="password" id="masterPass" placeholder="Master Password">
-        <button class="btn btn-green" onclick="unlockWithBiometric()">🔓 Unlock with Biometrics</button>
+        <button id="bioUnlockBtn" class="btn btn-green" onclick="unlockWithBiometric()">🔓 Unlock with Biometrics</button>
         <button class="btn btn-blue" onclick="unlockVault()">Unlock Vault</button>
         <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">📂 Import Backup</button>
         <input type="file" id="importFile" class="hidden" onchange="importData(this)">
@@ -170,6 +170,16 @@
             ['nick','num','name','exp','cvv'].forEach(k => document.getElementById(k).value = "");
         }
     }
+function updateBiometricUI() {
+    const bioBtn = document.getElementById("bioUnlockBtn");
+    const enabled = localStorage.getItem("vault_bio_enabled");
+
+    if (enabled === "true") {
+        bioBtn.classList.remove("hidden");
+    } else {
+        bioBtn.classList.add("hidden");
+    }
+}
 
     function saveCard() {
         const editId = document.getElementById('editId').value;
@@ -462,7 +472,7 @@ async function unlockWithBiometric() {
     }
 }
 
-
+updateBiometricUI();
 
 </script>
 </body>
