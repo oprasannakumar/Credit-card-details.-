@@ -189,26 +189,31 @@ function toggleAddForm(){addForm.classList.toggle("hidden");}
 function exportData(){
 const blob=new Blob([JSON.stringify({
 data:localStorage.getItem("vault_data"),
-key:localStorage.getItem("vault_key"),
-bio:localStorage.getItem("vault_bio_id")
+key:localStorage.getItem("vault_key")
 })],{type:"text/plain"});
 const a=document.createElement("a");
 a.href=URL.createObjectURL(blob);
 a.download="vault_backup.txt";
 a.click();
 }
+
 function importData(input){
 const reader=new FileReader();
 reader.onload=e=>{
 const j=JSON.parse(e.target.result);
+
 localStorage.setItem("vault_data",j.data);
 localStorage.setItem("vault_key",j.key);
-localStorage.setItem("vault_bio_id",j.bio);
-alert("Backup restored");
+
+// Remove old biometric reference
+localStorage.removeItem("vault_bio_id");
+
+alert("Backup restored. Please enable biometrics again.");
 location.reload();
 };
 reader.readAsText(input.files[0]);
 }
+
 </script>
 </body>
 </html>
